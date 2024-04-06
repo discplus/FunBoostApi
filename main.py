@@ -1,20 +1,18 @@
 import requests
-from colorama import init
+from colorama import init, Fore
+
 init()
-from colorama import Fore
+
 print(Fore.CYAN + "Программа разработана discplus.")
 print("Ссылка на GitHub: https://github.com/discplus")
 print("Ссылка на файл: https://github.com/discplus/FunBoostApi")
-print()
-print()
-print()
-
+print("\n\n")
 
 def authenticate_user():
     user_login = input("Введите ваш логин: ")
     with open("baza.txt", "r") as file:
         for line in file:
-            login, key, service = line.strip().split(" : ")  
+            login, key, service = line.strip().split(" : ")
             if login == user_login:
                 return key, service
     return None, None
@@ -26,20 +24,24 @@ if key is None or service is None:
     exit(1)
 
 for x in range(30):
-  print()
+    print()
+
 print("Выберите действие:\n1 - посмотреть все сервисы\n2 - посмотреть баланс\n3 - заказать накрутку\n4 - узнать статус заказа\n5 - сделать рефил\n6 - отменить заказ\n7 - выход")
 print()
 
 while True:
     action = int(input("Выбирете действие: "))
+
     if action == 1:
         response = requests.get(f"{service}/api/v2?action=services&key={key}")
         data = response.json()
+
         print()
         for item in data:
             print(f"Название: {item['name']}")
             print(f"Id: {item['service']}")
             print(f"Цена: {item['rate']}")
+
             if item['type'] == "like":
                 print("Тип: лайки")
             elif item['type'] == "subscribe":
@@ -66,21 +68,24 @@ while True:
                 print("Тип: добавление в избранное")
             else:
                 print("Ошибка при получении данных")
+
             print(f"Описание: {item['category']}")
             print(f"Минимальное количество для заказа: {item['min']}")
             print(f"Максимальное количество для заказа: {item['max']}")
+
             if item['refill'] == "True":
                 print("Доступен ли рефилл заказа: да")
             elif item['refill'] == "False":
                 print(f"Доступна ли отмена заказа: {item['cancel']}")
             else:
                 print("Ошибка при получении данных")
-            print()
-            print()
+
+            print("\n\n")
 
     if action == 2:
         response = requests.get(f"{service}/api/v2?action=balance&key={key}")
         data = response.json()
+
         print()
         print(f"Ваш баланс: {data['balance']} {data['currency']}")
         print()
@@ -91,6 +96,7 @@ while True:
         quantity = int(input("Введите количество накрутки: "))
         response = requests.get(f"{service}/api/v2?action=add&service={id}&link={link}&quantity={quantity}&key={key}")
         data = response.json()
+
         print()
         print(f"Id заказа: {data['order']}")
         print("Пожайлуста, сохраните его до оканчания накрутки.")
@@ -104,6 +110,7 @@ while True:
         print()
         print(f"Потрачено на заказ: {data['charge']}{data['currency']}")
         print(f"Количество перед выполнением заказа: {data['start_count']}")
+
         if data['status'] == "In progress":
             print("Статус заказа: выполнение")
         elif data['status'] == "Comleted":
@@ -116,14 +123,15 @@ while True:
             print("Статус заказа: ошибка")
         elif data['status'] == "Partial":
             print("Статус заказа: частично выполнен")
+
         print(f"Осталось до выполнения: {data['remains']}")
         print()
 
     elif action == 5:
-        response = requests.get(f"{service}/api/v2?action=refill&order={id}&key={key}")
         id = int(input("Введите id заказа: "))
+        response = requests.get(f"{service}/api/v2?action=refill&order={id}&key={key}")
         data = response.json()
-        
+
         if 'error' in data:
             print()
             print(f"Ошибка: {data['error']}")
@@ -137,11 +145,11 @@ while True:
             print("Не удалось определить статус рефилла.")
             print()
 
-
     elif action == 6:
         id = int(input("Введите id заказа: "))
         response = requests.get(f"https://vexboost.ru/api/v2?action=cancel&order={id}&key={key}")
         data = response.json()
+
         print()
 
         if 'error' in data:
@@ -152,7 +160,7 @@ while True:
             print()
         else:
             print("Не удалось определить статус отмены заказа.")
-            print()
+        print()
 
     elif action == 7:
         print()
